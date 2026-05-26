@@ -2,5 +2,7 @@ speechrecognition
 openai
 pyaudio
 pexpect
-espeakng
 python-dotenv
+pyttsx3
+# Note: espeak-ng is installed via apt (system package)
+# pyaudio also needs the portaudio system lib (already in apt install)
