@@ -1,101 +1,73 @@
-# Full Setup Guide for Hands-Free Aider Voice Chat
+# Aider Voice Hands-Free Setup for Kali Linux
 
-This guide will get you talking to Aider completely hands-free.
+This repo gives you a **continuous hands-free voice interface** for Aider on Kali Linux.
 
-## Step 1: Install Aider
+It listens for a wake word ("Hey Aider"), transcribes your speech using fast cloud STT, automatically feeds commands into Aider, and speaks the results back using lightweight `espeak-ng`.
 
+Perfect for your 2008 iMac running Kali.
+
+## Prerequisites
+
+### 1. Install system packages (required separately)
 ```bash
-pip install aider-chat
+sudo apt update
+sudo apt install -y espeak-ng portaudio19-dev python3-pyaudio python3-venv git
 ```
 
-Test it:
+### 2. Install Aider first (make sure it works normally)
 ```bash
-aider --help
+aider --version
+```
+If not installed:
+```bash
+pipx install aider-chat
 ```
 
-## Step 2: Enable Voice in Aider (Built-in)
+### 3. Get an OpenAI API key (recommended for speed on old hardware)
+- Go to https://platform.openai.com/api-keys
+- Create a key and copy it.
 
-Aider has official voice support:
-
-```bash
-aider --voice
-```
-
-This lets you speak to Aider directly in the terminal.
-
-However, it still requires you to press Enter or use a hotkey in some setups. For **true hands-free**, use the Python wrapper.
-
-## Step 3: Set Up the Voice Wrapper
+## Setup
 
 ```bash
-# Clone the repo (if you haven't)
+# Clone or update the repo
 git clone https://github.com/111-bli/aider-voice-handsfree.git
 cd aider-voice-handsfree
 
-# Install voice dependencies
-pip install -r requirements.txt
+git pull
+
+# Install Python dependencies with pipx
+pipx install -r requirements.txt
+
+# Or if you prefer a venv:
+# python3 -m venv .venv
+# source .venv/bin/activate
+# pip install -r requirements.txt
 ```
 
-> **Note:** On some systems you may need `portaudio` installed for PyAudio.
-> - macOS: `brew install portaudio`
-> - Ubuntu/Debian: `sudo apt install portaudio19-dev`
-
-## Step 4: Run the Hands-Free Wrapper
+## Run it
 
 ```bash
+export OPENAI_API_KEY=sk-your-key-here
+
 python voice_aider.py
 ```
 
-The script will:
-1. Calibrate your microphone
-2. Listen continuously
-3. Transcribe everything you say
-4. Speak responses using your system's TTS
+It will calibrate your microphone, then wait for the wake word **"Hey Aider"**.
 
-You can then copy the transcribed text and paste it into your Aider terminal, or combine both.
+Just talk naturally after the wake word.
 
-## How to Use It Day-to-Day
+## How to use
+- Say **"Hey Aider, create a new Python file called test.py"**
+- The script will transcribe it and send it to Aider automatically (using pexpect).
+- Responses are spoken out loud.
 
-**Recommended workflow:**
-
-1. Open two terminals side by side:
-   - Terminal 1: Run `aider` (or `aider --voice`)
-   - Terminal 2: Run `python voice_aider.py`
-
-2. Talk naturally into your microphone
-3. The voice wrapper transcribes what you said
-4. Paste (or have it auto-send in future versions) into Aider
-5. Aider edits your code
-6. Read Aider's reply or have the wrapper speak summaries
-
-## Making It More Automatic (Future)
-
-The current `voice_aider.py` is a solid foundation. Future versions will include:
-- Automatic sending of transcribed text into a running Aider session (using pexpect)
-- Wake word detection ("Hey Aider...")
-- Better local STT (faster-whisper)
-
-## Tips
-
-- Use a decent USB microphone or headset for best accuracy
-- Speak clearly and at a normal pace
-- You can say things like:
-  - "Add a new route to the FastAPI app"
-  - "Refactor this function to be async"
-  - "Write tests for the user model"
-  - "Commit the current changes with message 'add login'"
+## Switching to fully local later
+When you upgrade your PC, edit the script and change to local Whisper + Piper TTS for completely offline use.
 
 ## Troubleshooting
+- Mic not working? Check with `arecord -l`
+- espeak-ng not speaking? `espeak-ng "test"`
+- Slow? Use the cloud STT option (already default).
 
-**Microphone not working?**
-- Make sure PyAudio is installed correctly
-- Try adjusting `recognizer.energy_threshold`
-
-**TTS not speaking?**
-- On Linux you may need `espeak` or `festival` installed
-
-## Next Level
-
-Want me to improve the automation further (full pexpect integration so it drives Aider automatically)? Just say the word and I'll update the repo.
-
-Enjoy coding by voice! 🚀
+Enjoy hands-free coding!
