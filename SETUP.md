@@ -1,73 +1,80 @@
 # Aider Voice Hands-Free Setup for Kali Linux
 
-This repo gives you a **continuous hands-free voice interface** for Aider on Kali Linux.
+**Hands-free voice wrapper for Aider** — continuous listening with wake word, so you can talk to Aider without touching anything.
 
-It listens for a wake word ("Hey Aider"), transcribes your speech using fast cloud STT, automatically feeds commands into Aider, and speaks the results back using lightweight `espeak-ng`.
+Tuned for your **2008 iMac (Kali Linux)** using fast cloud STT + lightweight TTS.
 
-Perfect for your 2008 iMac running Kali.
+pipx is fully supported (it manages its own isolated environments).
 
-## Prerequisites
+## 1. Install required system packages (these must be installed separately)
 
-### 1. Install system packages (required separately)
 ```bash
 sudo apt update
-sudo apt install -y espeak-ng portaudio19-dev python3-pyaudio python3-venv git
+sudo apt install -y espeak-ng portaudio19-dev python3-pyaudio git
 ```
 
-### 2. Install Aider first (make sure it works normally)
-```bash
-aider --version
-```
-If not installed:
+## 2. Install / verify Aider via pipx (your preferred method)
+
 ```bash
 pipx install aider-chat
+aider --version
 ```
 
-### 3. Get an OpenAI API key (recommended for speed on old hardware)
-- Go to https://platform.openai.com/api-keys
-- Create a key and copy it.
+If you already have it, you're good.
 
-## Setup
+## 3. Get an OpenAI API key (recommended for speed on old hardware)
+
+1. Go to https://platform.openai.com/api-keys
+2. Create a key
+3. You'll export it when running: `export OPENAI_API_KEY=sk-...`
+
+## 4. Clone or update the repo
 
 ```bash
-# Clone or update the repo
 git clone https://github.com/111-bli/aider-voice-handsfree.git
 cd aider-voice-handsfree
-
 git pull
-
-# Install Python dependencies with pipx
-pipx install -r requirements.txt
-
-# Or if you prefer a venv:
-# python3 -m venv .venv
-# source .venv/bin/activate
-# pip install -r requirements.txt
 ```
 
-## Run it
+## 5. Install Python dependencies (pipx handles its own envs)
+
+pipx creates clean isolated environments for tools. For this project:
+
+```bash
+# Core packages via pipx
+pipx install openai pexpect
+
+# Speech + other libs (pipx doesn't do -r requirements directly for libraries, so we use --user)
+python3 -m pip install --user -r requirements.txt
+```
+
+**Note:** `pipx` manages its own environments automatically. The `--user` flag keeps library installs clean and out of the system Python.
+
+## 6. Run the hands-free wrapper
 
 ```bash
 export OPENAI_API_KEY=sk-your-key-here
 
-python voice_aider.py
+python3 voice_aider.py
 ```
 
-It will calibrate your microphone, then wait for the wake word **"Hey Aider"**.
+- It will calibrate your microphone.
+- Then wait for the **wake word "Hey Aider"** (edit the script to change it).
+- Speak naturally after the wake word.
+- The transcription prints clearly so you can paste into Aider or extend it to auto-control.
 
-Just talk naturally after the wake word.
+## How it works
+- Wake word detection
+- Cloud speech-to-text (fast even on old hardware)
+- Lightweight TTS via pyttsx3 / espeak-ng
+- Ready to integrate with Aider (pexpect ready in code)
 
-## How to use
-- Say **"Hey Aider, create a new Python file called test.py"**
-- The script will transcribe it and send it to Aider automatically (using pexpect).
-- Responses are spoken out loud.
-
-## Switching to fully local later
-When you upgrade your PC, edit the script and change to local Whisper + Piper TTS for completely offline use.
+## When you upgrade your PC later
+We can switch to fully local/offline models (Whisper + Piper TTS) with one change in the script.
 
 ## Troubleshooting
-- Mic not working? Check with `arecord -l`
-- espeak-ng not speaking? `espeak-ng "test"`
-- Slow? Use the cloud STT option (already default).
+- Mic check: `arecord -l`
+- Test speech: `espeak-ng "hello from kali"`
+- If things are trippin' with pip: the pipx + --user combo above usually fixes it.
 
-Enjoy hands-free coding!
+You're all set for hands-free Aider on Kali!
